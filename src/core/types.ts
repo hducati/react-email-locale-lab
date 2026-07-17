@@ -19,13 +19,16 @@ export type TranslationProvider = {
   name: string;
   translate: (request: TranslationRequest) => Promise<string[]>;
 };
+export type SourceUpdates = {
+  subscribe: (onUpdate: () => void) => () => void;
+};
 export type EmailLabConfig = {
   sourceLocale: Locale;
   locales: Locale[];
   templates: Record<string, EmailTemplate>;
   provider: TranslationProvider;
   routeBasePath?: string;
-  watchPaths?: string[];
+  sourceUpdates?: SourceUpdates;
 };
 
 export const defineEmailLab = (config: EmailLabConfig): EmailLabConfig => config;

@@ -1,4 +1,12 @@
 const TRANSLATABLE_ATTRIBUTES = ['alt', 'title', 'aria-label'];
+const RTL_LANGUAGES = new Set([
+  'ar', 'arc', 'ckb', 'dv', 'fa', 'ha', 'he', 'khw', 'ks', 'ku', 'nqo', 'ps', 'sd', 'syr', 'ug', 'ur', 'yi',
+]);
+
+export const directionForLocale = (locale: string): 'ltr' | 'rtl' => {
+  const language = locale.trim().split(/[-_]/, 1)[0].toLowerCase();
+  return RTL_LANGUAGES.has(language) ? 'rtl' : 'ltr';
+};
 
 export type MessageSlot = { value: string; apply: (translated: string) => void };
 const isMeaningful = (value: string) => /\p{L}/u.test(value);
@@ -38,6 +46,7 @@ export const localizeHtml = async (
   if (targetLocale === sourceLocale) return sourceHtml;
   const document = new DOMParser().parseFromString(sourceHtml, 'text/html');
   document.documentElement.lang = targetLocale;
+  document.documentElement.dir = directionForLocale(targetLocale);
   const slots = collectMessages(document);
   const translated = await translate(slots.map((slot) => slot.value));
   slots.forEach((slot, index) => slot.apply(translated[index] ?? slot.value));

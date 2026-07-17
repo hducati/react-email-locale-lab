@@ -7,6 +7,7 @@ export type {
   EmailLabConfig,
   EmailTemplate,
   Locale,
+  SourceUpdates,
   TranslationProvider,
   TranslationRequest,
 } from './core/types';

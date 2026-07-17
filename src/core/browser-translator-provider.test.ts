@@ -12,6 +12,7 @@ describe('browserTranslatorProvider', () => {
     Object.defineProperty(globalThis, 'window', {
       configurable: true,
       value: {
+        sessionStorage: createSessionStorage(),
         Translator: {
           availability: async () => 'available',
           create: async () => ({
@@ -33,4 +34,38 @@ describe('browserTranslatorProvider', () => {
     await expect(Promise.all([request('Order confirmed'), request('Reset your password')]))
       .resolves.toEqual([['pt:Order confirmed'], ['pt:Reset your password']]);
   });
+
+  it('reuses cached translations after the provider is recreated by a page reload', async () => {
+    const sessionStorage = createSessionStorage();
+    let translations = 0;
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: {
+        sessionStorage,
+        Translator: {
+          availability: async () => 'available',
+          create: async () => ({
+            async translate(text: string) {
+              translations += 1;
+              return `de:${text}`;
+            },
+          }),
+        },
+      },
+    });
+
+    const request = { texts: ['Order confirmed'], sourceLocale: 'en', targetLocale: 'de' };
+    await browserTranslatorProvider().translate(request);
+    await browserTranslatorProvider().translate(request);
+
+    expect(translations).toBe(1);
+  });
 });
+
+const createSessionStorage = () => {
+  const values = new Map<string, string>();
+  return {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => { values.set(key, value); },
+  };
+};
