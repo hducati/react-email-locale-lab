@@ -78,16 +78,18 @@ export const browserTranslatorProvider = (): TranslationProvider => {
       const pair = `${sourceLocale}:${targetLocale}`;
       return serialize(pair, async () => {
         const results: string[] = [];
+        let cacheChanged = false;
         for (const text of texts) {
           const key = `${pair}:${text}`;
           let translated = cache.get(key);
           if (!translated) {
             translated = await translator.translate(text);
             cache.set(key, translated);
-            storeCache(cache);
+            cacheChanged = true;
           }
           results.push(translated);
         }
+        if (cacheChanged) storeCache(cache);
         return results;
       });
     },
