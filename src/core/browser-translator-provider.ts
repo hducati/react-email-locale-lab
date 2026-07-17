@@ -1,6 +1,9 @@
 import type { TranslationProvider } from './types';
 
-type BrowserTranslator = { translate: (text: string) => Promise<string>; destroy?: () => void };
+type BrowserTranslator = {
+  translate: (text: string, options?: { signal?: AbortSignal }) => Promise<string>;
+  destroy?: () => void;
+};
 type TranslatorFactory = {
   availability: (options: { sourceLanguage: string; targetLanguage: string }) => Promise<string>;
   create: (options: { sourceLanguage: string; targetLanguage: string }) => Promise<BrowserTranslator>;
@@ -72,8 +75,9 @@ export const browserTranslatorProvider = (): TranslationProvider => {
 
   return {
     name: 'Browser Translator · on-device',
-    async translate({ texts, sourceLocale, targetLocale }) {
+    async translate({ texts, sourceLocale, targetLocale, signal }) {
       if (texts.length === 0) return [];
+      signal?.throwIfAborted();
       const translator = await getTranslator(sourceLocale, targetLocale);
       const pair = `${sourceLocale}:${targetLocale}`;
       return serialize(pair, async () => {
@@ -81,10 +85,11 @@ export const browserTranslatorProvider = (): TranslationProvider => {
         let cacheChanged = false;
         try {
           for (const text of texts) {
+            signal?.throwIfAborted();
             const key = `${pair}:${text}`;
             let translated = cache.get(key);
             if (!translated) {
-              translated = await translator.translate(text);
+              translated = await translator.translate(text, { signal });
               cache.set(key, translated);
               cacheChanged = true;
             }

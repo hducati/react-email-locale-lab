@@ -50,6 +50,7 @@ export const useEmailLab = (config: EmailLabConfig) => {
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
     setPreviews((current) => Object.fromEntries(previewLocales.map((locale) => [
       locale.code,
       locale.code === config.sourceLocale.code
@@ -70,6 +71,7 @@ export const useEmailLab = (config: EmailLabConfig) => {
               texts,
               sourceLocale: config.sourceLocale.translationCode ?? config.sourceLocale.code,
               targetLocale: locale.translationCode ?? locale.code,
+              signal: controller.signal,
             }));
           const revision = await fingerprint(sourceHtml);
           if (!cancelled) {
@@ -90,7 +92,10 @@ export const useEmailLab = (config: EmailLabConfig) => {
       }
     };
     void translatePreviews();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [sourceHtml, generation, activeLocaleCodes.join(',')]);
 
   const selectTemplate = (templateId: string) => {
