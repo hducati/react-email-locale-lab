@@ -9,6 +9,7 @@ describe('directionForLocale', () => {
   });
 
   it('uses left-to-right direction for other locales', () => {
+    expect(directionForLocale('ha')).toBe('ltr');
     expect(directionForLocale('de')).toBe('ltr');
     expect(directionForLocale('pt-BR')).toBe('ltr');
   });

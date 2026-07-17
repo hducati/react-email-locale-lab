@@ -1,6 +1,6 @@
 const TRANSLATABLE_ATTRIBUTES = ['alt', 'title', 'aria-label'];
 const RTL_LANGUAGES = new Set([
-  'ar', 'arc', 'ckb', 'dv', 'fa', 'ha', 'he', 'khw', 'ks', 'ku', 'nqo', 'ps', 'sd', 'syr', 'ug', 'ur', 'yi',
+  'ar', 'arc', 'ckb', 'dv', 'fa', 'he', 'khw', 'ks', 'ku', 'nqo', 'ps', 'sd', 'syr', 'ug', 'ur', 'yi',
 ]);
 
 export const directionForLocale = (locale: string): 'ltr' | 'rtl' => {
