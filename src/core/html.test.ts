@@ -19,4 +19,10 @@ describe('directionForLocale', () => {
     expect(directionForLocale('ku-Latn-TR')).toBe('ltr');
     expect(directionForLocale('en-Arab')).toBe('rtl');
   });
+
+  it('does not interpret extension values as script subtags', () => {
+    expect(directionForLocale('ar-u-nu-latn')).toBe('rtl');
+    expect(directionForLocale('ar-x-latn')).toBe('rtl');
+    expect(directionForLocale('ar-Latn-u-nu-arab')).toBe('ltr');
+  });
 });

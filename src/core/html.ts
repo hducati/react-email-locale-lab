@@ -7,7 +7,9 @@ const RTL_SCRIPTS = new Set(['adlm', 'arab', 'hebr', 'mand', 'nkoo', 'rohg', 'sa
 export const directionForLocale = (locale: string): 'ltr' | 'rtl' => {
   const subtags = locale.trim().split(/[-_]/);
   const language = subtags[0].toLowerCase();
-  const script = subtags.slice(1).find((subtag) => /^[a-z]{4}$/i.test(subtag));
+  const extensionIndex = subtags.findIndex((subtag, index) => index > 0 && /^[a-z0-9]$/i.test(subtag));
+  const coreSubtags = subtags.slice(1, extensionIndex === -1 ? undefined : extensionIndex);
+  const script = coreSubtags.find((subtag) => /^[a-z]{4}$/i.test(subtag));
   if (script) return RTL_SCRIPTS.has(script.toLowerCase()) ? 'rtl' : 'ltr';
   return RTL_LANGUAGES.has(language) ? 'rtl' : 'ltr';
 };
