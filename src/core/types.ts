@@ -14,7 +14,12 @@ export type EmailTemplate = {
   | { component: PreviewableEmailComponent; props?: Record<string, unknown>; render?: never }
   | { render: () => ReactElement; component?: never; props?: never }
 );
-export type TranslationRequest = { texts: string[]; sourceLocale: string; targetLocale: string };
+export type TranslationRequest = {
+  texts: string[];
+  sourceLocale: string;
+  targetLocale: string;
+  signal?: AbortSignal;
+};
 export type TranslationProvider = {
   name: string;
   translate: (request: TranslationRequest) => Promise<string[]>;

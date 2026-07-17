@@ -90,6 +90,36 @@ describe('browserTranslatorProvider', () => {
 
     expect(attempts).toEqual(['Heading', 'Body']);
   });
+
+  it('stops a stale batch before translating its remaining texts', async () => {
+    const controller = new AbortController();
+    const attempts: string[] = [];
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: {
+        sessionStorage: createSessionStorage(),
+        Translator: {
+          availability: async () => 'available',
+          create: async () => ({
+            async translate(text: string) {
+              attempts.push(text);
+              controller.abort();
+              return `de:${text}`;
+            },
+          }),
+        },
+      },
+    });
+
+    await expect(browserTranslatorProvider().translate({
+      texts: ['Old heading', 'Old body'],
+      sourceLocale: 'en',
+      targetLocale: 'de',
+      signal: controller.signal,
+    })).rejects.toMatchObject({ name: 'AbortError' });
+
+    expect(attempts).toEqual(['Old heading']);
+  });
 });
 
 const createSessionStorage = () => {
