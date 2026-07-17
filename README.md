@@ -114,7 +114,7 @@ Data fetching in `useEffect`, async/Server Components, application routes and co
 templates: {
   welcome: {
     name: 'Welcome',
-    render: () => <AppProviders><WelcomeEmail customer={previewCustomer} /></AppProviders>,
+    render: () => <WelcomeEmail customer={{ name: 'Taylor' }} />,
   },
 }
 ```
