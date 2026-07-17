@@ -60,6 +60,36 @@ describe('browserTranslatorProvider', () => {
 
     expect(translations).toBe(1);
   });
+
+  it('persists successful translations when a later item fails', async () => {
+    const sessionStorage = createSessionStorage();
+    const attempts: string[] = [];
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: {
+        sessionStorage,
+        Translator: {
+          availability: async () => 'available',
+          create: async () => ({
+            async translate(text: string) {
+              attempts.push(text);
+              if (text === 'Body') throw new Error('Translation failed');
+              return `de:${text}`;
+            },
+          }),
+        },
+      },
+    });
+
+    await expect(browserTranslatorProvider().translate({
+      texts: ['Heading', 'Body'], sourceLocale: 'en', targetLocale: 'de',
+    })).rejects.toThrow('Translation failed');
+    await expect(browserTranslatorProvider().translate({
+      texts: ['Heading'], sourceLocale: 'en', targetLocale: 'de',
+    })).resolves.toEqual(['de:Heading']);
+
+    expect(attempts).toEqual(['Heading', 'Body']);
+  });
 });
 
 const createSessionStorage = () => {

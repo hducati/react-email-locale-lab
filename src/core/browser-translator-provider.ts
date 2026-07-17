@@ -79,18 +79,21 @@ export const browserTranslatorProvider = (): TranslationProvider => {
       return serialize(pair, async () => {
         const results: string[] = [];
         let cacheChanged = false;
-        for (const text of texts) {
-          const key = `${pair}:${text}`;
-          let translated = cache.get(key);
-          if (!translated) {
-            translated = await translator.translate(text);
-            cache.set(key, translated);
-            cacheChanged = true;
+        try {
+          for (const text of texts) {
+            const key = `${pair}:${text}`;
+            let translated = cache.get(key);
+            if (!translated) {
+              translated = await translator.translate(text);
+              cache.set(key, translated);
+              cacheChanged = true;
+            }
+            results.push(translated);
           }
-          results.push(translated);
+          return results;
+        } finally {
+          if (cacheChanged) storeCache(cache);
         }
-        if (cacheChanged) storeCache(cache);
-        return results;
       });
     },
   };
