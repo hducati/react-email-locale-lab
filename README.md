@@ -79,7 +79,7 @@ The lab configuration defines only the source locale, available target locales, 
 ```tsx
 export default defineEmailLab({
   routeBasePath: '/preview',
-  watchPaths: ['src/emails'],
+  sourceUpdates: viteSourceUpdates(import.meta.hot, { watchPaths: ['src/emails'] }),
   sourceLocale: { code: 'en', label: 'English' },
   locales: [
     { code: 'de', label: 'Deutsch' },
