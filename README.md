@@ -30,6 +30,8 @@ pnpm add -D vite
 
 ```tsx
 // email-lab/main.tsx
+/// <reference types="vite/client" />
+
 import { createRoot } from 'react-dom/client';
 import {
   browserTranslatorProvider,
