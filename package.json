@@ -1,6 +1,6 @@
 {
   "name": "react-email-locale-lab",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Real-time multi-language previews for React Email templates.",
   "type": "module",
   "main": "./dist/index.js",
@@ -15,17 +15,9 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./app": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./browser-translator": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
     "./styles.css": "./dist/styles.css"
   },
-  "sideEffects": ["**/*.css"],
+  "sideEffects": ["./dist/styles.css"],
   "keywords": ["react-email", "email", "i18n", "localization", "preview"],
   "publishConfig": {
     "access": "public"

@@ -1,11 +1,19 @@
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 
 export type Locale = {
   code: string;
   label: string;
   translationCode?: string;
 };
-export type EmailTemplate = { name: string; render: () => ReactElement };
+export type PreviewableEmailComponent = ComponentType<any> & {
+  PreviewProps?: Record<string, unknown>;
+};
+export type EmailTemplate = {
+  name: string;
+} & (
+  | { component: PreviewableEmailComponent; props?: Record<string, unknown>; render?: never }
+  | { render: () => ReactElement; component?: never; props?: never }
+);
 export type TranslationRequest = { texts: string[]; sourceLocale: string; targetLocale: string };
 export type TranslationProvider = {
   name: string;

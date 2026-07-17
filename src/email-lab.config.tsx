@@ -11,6 +11,6 @@ export default defineEmailLab({
   ],
   provider: browserTranslatorProvider(),
   templates: {
-    welcome: { name: 'Welcome email', render: () => <WelcomeEmail /> },
+    welcome: { name: 'Welcome email', component: WelcomeEmail },
   },
 });

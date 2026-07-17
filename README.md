@@ -4,7 +4,7 @@ React Email Locale Lab is a proof of concept for previewing React Email template
 
 The idea came from an internal need I encountered while working at one of the companies in my career. We needed a faster way to understand how email templates behaved across languages, especially when translated text changed the size, spacing or structure of a layout.
 
-This project exists to test the technical and product viability of that workflow. It is not yet intended to be a production localization system or a finished commercial library.
+This project exists to test the technical and product viability of that workflow.
 
 ## Install
 
@@ -30,7 +30,7 @@ const config = defineEmailLab({
   locales: [{ code: 'de', label: 'Deutsch' }],
   provider: browserTranslatorProvider(),
   templates: {
-    welcome: { name: 'Welcome', render: () => <WelcomeEmail /> },
+    welcome: { name: 'Welcome', component: WelcomeEmail },
   },
 });
 
@@ -62,10 +62,22 @@ export default defineEmailLab({
   ],
   provider: browserTranslatorProvider(),
   templates: {
-    welcome: { name: 'Welcome', render: () => <WelcomeEmail /> },
+    welcome: { name: 'Welcome', component: WelcomeEmail },
   },
 });
 ```
+
+When a template declares React Email `PreviewProps`, the lab uses them automatically:
+
+```tsx
+WelcomeEmail.PreviewProps = { customerName: 'Taylor' };
+
+templates: {
+  welcome: { name: 'Welcome', component: WelcomeEmail },
+}
+```
+
+Set `props` on the template entry to override `PreviewProps`. A custom `render` function remains available for templates that need bespoke setup.
 
 ## Template routes
 

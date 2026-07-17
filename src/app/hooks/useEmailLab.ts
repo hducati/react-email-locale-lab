@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { fingerprint, localizeHtml } from '../../core/html';
+import { renderEmailTemplate } from '../../core/template';
 import type { EmailLabConfig } from '../../core/types';
 import type { PreviewState } from '../types';
 import { localeCodesFromUrl, templateIdFromUrl, urlForLocales, urlForTemplate } from '../utils/url-state';
@@ -18,7 +19,7 @@ export const useEmailLab = (config: EmailLabConfig) => {
   const [generation, setGeneration] = useState(0);
 
   const template = config.templates[selectedTemplateId] ?? config.templates[templateIds[0]];
-  const sourceHtml = useMemo(() => `<!doctype html>${renderToStaticMarkup(template.render())}`, [template]);
+  const sourceHtml = useMemo(() => `<!doctype html>${renderToStaticMarkup(renderEmailTemplate(template))}`, [template]);
   const activeLocales = config.locales.filter((locale) => activeLocaleCodes.includes(locale.code));
   const previewLocales = [config.sourceLocale, ...activeLocales];
 
