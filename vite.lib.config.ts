@@ -8,8 +8,11 @@ export default defineConfig({
     emptyOutDir: true,
     lib: {
       cssFileName: 'styles',
-      entry: resolve(__dirname, 'src/index.ts'),
-      fileName: 'index',
+      entry: {
+        index: resolve(__dirname, 'src/index.ts'),
+        vite: resolve(__dirname, 'src/adapters/vite.ts'),
+      },
+      fileName: (_format, entryName) => `${entryName}.js`,
       formats: ['es'],
     },
     rollupOptions: {

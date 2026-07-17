@@ -3,7 +3,6 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { fingerprint, localizeHtml } from '../../core/html';
 import { renderEmailTemplate } from '../../core/template';
 import type { EmailLabConfig } from '../../core/types';
-import { shouldReloadForUpdates } from '../../core/watch';
 import type { PreviewState } from '../types';
 import { localeCodesFromUrl, templateIdFromUrl, urlForLocales, urlForTemplate } from '../utils/url-state';
 
@@ -20,7 +19,10 @@ export const useEmailLab = (config: EmailLabConfig) => {
   const [generation, setGeneration] = useState(0);
 
   const template = config.templates[selectedTemplateId] ?? config.templates[templateIds[0]];
-  const sourceHtml = useMemo(() => `<!doctype html>${renderToStaticMarkup(renderEmailTemplate(template))}`, [template]);
+  const sourceHtml = useMemo(
+    () => `<!doctype html>${renderToStaticMarkup(renderEmailTemplate(template))}`,
+    [template, generation],
+  );
   const activeLocales = config.locales.filter((locale) => activeLocaleCodes.includes(locale.code));
   const previewLocales = [config.sourceLocale, ...activeLocales];
 
@@ -36,15 +38,9 @@ export const useEmailLab = (config: EmailLabConfig) => {
     return () => window.removeEventListener('popstate', restoreUrlState);
   }, [config.routeBasePath, templateIds]);
 
-  useEffect(() => {
-    const beforeUpdate = (payload: { updates: Array<{ path: string }> }) => {
-      if (shouldReloadForUpdates(payload.updates.map((update) => update.path), config.watchPaths)) {
-        window.location.reload();
-      }
-    };
-    import.meta.hot?.on('vite:beforeUpdate', beforeUpdate);
-    return () => import.meta.hot?.off('vite:beforeUpdate', beforeUpdate);
-  }, [config.watchPaths]);
+  useEffect(() => config.sourceUpdates?.subscribe(() => {
+    setGeneration((value) => value + 1);
+  }), [config.sourceUpdates]);
 
   useEffect(() => {
     let cancelled = false;

@@ -1,4 +1,18 @@
 const TRANSLATABLE_ATTRIBUTES = ['alt', 'title', 'aria-label'];
+const RTL_LANGUAGES = new Set([
+  'ar', 'arc', 'ckb', 'dv', 'fa', 'he', 'khw', 'ks', 'ku', 'nqo', 'ps', 'sd', 'syr', 'ug', 'ur', 'yi',
+]);
+const RTL_SCRIPTS = new Set(['adlm', 'arab', 'hebr', 'mand', 'nkoo', 'rohg', 'samr', 'syrc', 'thaa']);
+
+export const directionForLocale = (locale: string): 'ltr' | 'rtl' => {
+  const subtags = locale.trim().split(/[-_]/);
+  const language = subtags[0].toLowerCase();
+  const extensionIndex = subtags.findIndex((subtag, index) => index > 0 && /^[a-z0-9]$/i.test(subtag));
+  const coreSubtags = subtags.slice(1, extensionIndex === -1 ? undefined : extensionIndex);
+  const script = coreSubtags.find((subtag) => /^[a-z]{4}$/i.test(subtag));
+  if (script) return RTL_SCRIPTS.has(script.toLowerCase()) ? 'rtl' : 'ltr';
+  return RTL_LANGUAGES.has(language) ? 'rtl' : 'ltr';
+};
 
 export type MessageSlot = { value: string; apply: (translated: string) => void };
 const isMeaningful = (value: string) => /\p{L}/u.test(value);
@@ -38,6 +52,7 @@ export const localizeHtml = async (
   if (targetLocale === sourceLocale) return sourceHtml;
   const document = new DOMParser().parseFromString(sourceHtml, 'text/html');
   document.documentElement.lang = targetLocale;
+  document.documentElement.dir = directionForLocale(targetLocale);
   const slots = collectMessages(document);
   const translated = await translate(slots.map((slot) => slot.value));
   slots.forEach((slot, index) => slot.apply(translated[index] ?? slot.value));

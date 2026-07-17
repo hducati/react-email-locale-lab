@@ -10,9 +10,34 @@ declare global {
   interface Window { Translator?: TranslatorFactory }
 }
 
+const CACHE_STORAGE_KEY = 'react-email-locale-lab:translations:v1';
+
+const readStoredCache = (): Map<string, string> => {
+  try {
+    const value = window.sessionStorage?.getItem(CACHE_STORAGE_KEY);
+    if (!value) return new Map();
+    const entries = JSON.parse(value) as unknown;
+    if (!Array.isArray(entries)) return new Map();
+    return new Map(entries.filter(
+      (entry): entry is [string, string] =>
+        Array.isArray(entry) && entry.length === 2 && entry.every((item) => typeof item === 'string'),
+    ));
+  } catch {
+    return new Map();
+  }
+};
+
+const storeCache = (cache: Map<string, string>) => {
+  try {
+    window.sessionStorage?.setItem(CACHE_STORAGE_KEY, JSON.stringify([...cache]));
+  } catch {
+    // Storage can be unavailable or full. The in-memory cache still works.
+  }
+};
+
 export const browserTranslatorProvider = (): TranslationProvider => {
   const translators = new Map<string, Promise<BrowserTranslator>>();
-  const cache = new Map<string, string>();
+  const cache = readStoredCache();
   const queues = new Map<string, Promise<void>>();
 
   const serialize = async <T,>(pair: string, task: () => Promise<T>): Promise<T> => {
@@ -53,16 +78,22 @@ export const browserTranslatorProvider = (): TranslationProvider => {
       const pair = `${sourceLocale}:${targetLocale}`;
       return serialize(pair, async () => {
         const results: string[] = [];
-        for (const text of texts) {
-          const key = `${pair}:${text}`;
-          let translated = cache.get(key);
-          if (!translated) {
-            translated = await translator.translate(text);
-            cache.set(key, translated);
+        let cacheChanged = false;
+        try {
+          for (const text of texts) {
+            const key = `${pair}:${text}`;
+            let translated = cache.get(key);
+            if (!translated) {
+              translated = await translator.translate(text);
+              cache.set(key, translated);
+              cacheChanged = true;
+            }
+            results.push(translated);
           }
-          results.push(translated);
+          return results;
+        } finally {
+          if (cacheChanged) storeCache(cache);
         }
-        return results;
       });
     },
   };
