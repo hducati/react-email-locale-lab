@@ -13,4 +13,10 @@ describe('directionForLocale', () => {
     expect(directionForLocale('de')).toBe('ltr');
     expect(directionForLocale('pt-BR')).toBe('ltr');
   });
+
+  it('uses an explicit script subtag instead of the language default', () => {
+    expect(directionForLocale('ar-Latn')).toBe('ltr');
+    expect(directionForLocale('ku-Latn-TR')).toBe('ltr');
+    expect(directionForLocale('en-Arab')).toBe('rtl');
+  });
 });

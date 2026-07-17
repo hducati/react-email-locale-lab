@@ -2,9 +2,13 @@ const TRANSLATABLE_ATTRIBUTES = ['alt', 'title', 'aria-label'];
 const RTL_LANGUAGES = new Set([
   'ar', 'arc', 'ckb', 'dv', 'fa', 'he', 'khw', 'ks', 'ku', 'nqo', 'ps', 'sd', 'syr', 'ug', 'ur', 'yi',
 ]);
+const RTL_SCRIPTS = new Set(['adlm', 'arab', 'hebr', 'mand', 'nkoo', 'rohg', 'samr', 'syrc', 'thaa']);
 
 export const directionForLocale = (locale: string): 'ltr' | 'rtl' => {
-  const language = locale.trim().split(/[-_]/, 1)[0].toLowerCase();
+  const subtags = locale.trim().split(/[-_]/);
+  const language = subtags[0].toLowerCase();
+  const script = subtags.slice(1).find((subtag) => /^[a-z]{4}$/i.test(subtag));
+  if (script) return RTL_SCRIPTS.has(script.toLowerCase()) ? 'rtl' : 'ltr';
   return RTL_LANGUAGES.has(language) ? 'rtl' : 'ltr';
 };
 
