@@ -1,10 +1,14 @@
 # React Email Locale Lab
 
-React Email Locale Lab is a proof of concept for previewing React Email templates in multiple languages while editing them.
+React Email Locale Lab is a development utility for previewing [React Email](https://react.email/) templates in multiple languages while editing them.
 
-The idea came from an internal need I encountered while working at one of the companies in my career. We needed a faster way to understand how email templates behaved across languages, especially when translated text changed the size, spacing or structure of a layout.
+[Live demo](https://react-email-locale-lab-integration.vercel.app/) · [Integration example](https://github.com/hducati/react-email-locale-lab-integration-example)
 
-This project exists to test the technical and product viability of that workflow.
+I developed this library after encountering this need while working at an organization that used React Email templates in multiple languages. The templates were usually created first in English, but we also needed to understand how the same layout behaved in languages such as German and Russian, where translated text could change line wrapping, spacing and element dimensions.
+
+During local development, the library renders a React Email template and generates on-demand previews for the selected languages. When the source template changes, Vite refreshes it and the selected previews are generated again, allowing the versions to be inspected side by side in near real time.
+
+The generated translations are intended only for visual inspection of the templates. The library does not replace the localization workflow or the reviewed translations used by the application.
 
 ## Install
 
@@ -12,7 +16,7 @@ This project exists to test the technical and product viability of that workflow
 pnpm add -D react-email-locale-lab
 ```
 
-The package expects React 19 and React DOM 19 as peer dependencies.
+The package supports React and React DOM 18 or 19 as peer dependencies.
 
 Create a configuration in the consuming project:
 
@@ -109,4 +113,4 @@ The included provider uses the browser's built-in Translator API. Language packs
 
 ## Current scope
 
-React Email Locale Lab is currently a POC for validating the developer experience, not a production localization system. It automatically translates rendered text for preview only. Future iterations may protect placeholders, expose language-pack progress and offer an explicitly configured server provider for teams whose browsers do not support on-device translation.
+React Email Locale Lab is currently a development-time proof of concept. It automatically translates rendered React Email content for visual preview only; it is not a production localization system or a replacement for testing in real email clients. Future iterations may protect placeholders, improve RTL coverage, expose language-pack progress and support additional translation providers.
