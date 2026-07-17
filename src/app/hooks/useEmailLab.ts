@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { fingerprint, localizeHtml } from '../../core/html';
 import { renderEmailTemplate } from '../../core/template';
 import type { EmailLabConfig } from '../../core/types';
+import { shouldReloadForUpdates } from '../../core/watch';
 import type { PreviewState } from '../types';
 import { localeCodesFromUrl, templateIdFromUrl, urlForLocales, urlForTemplate } from '../utils/url-state';
 
@@ -37,11 +38,13 @@ export const useEmailLab = (config: EmailLabConfig) => {
 
   useEffect(() => {
     const beforeUpdate = (payload: { updates: Array<{ path: string }> }) => {
-      if (payload.updates.some((update) => update.path.includes('/src/emails/'))) window.location.reload();
+      if (shouldReloadForUpdates(payload.updates.map((update) => update.path), config.watchPaths)) {
+        window.location.reload();
+      }
     };
     import.meta.hot?.on('vite:beforeUpdate', beforeUpdate);
     return () => import.meta.hot?.off('vite:beforeUpdate', beforeUpdate);
-  }, []);
+  }, [config.watchPaths]);
 
   useEffect(() => {
     let cancelled = false;

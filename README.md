@@ -30,6 +30,7 @@ import 'react-email-locale-lab/styles.css';
 
 const config = defineEmailLab({
   routeBasePath: '/preview',
+  watchPaths: ['src/emails'],
   sourceLocale: { code: 'en', label: 'English' },
   locales: [{ code: 'de', label: 'Deutsch' }],
   provider: browserTranslatorProvider(),
@@ -59,6 +60,7 @@ Open `http://localhost:4173/preview/welcome`, select up to three languages, then
 ```tsx
 export default defineEmailLab({
   routeBasePath: '/preview',
+  watchPaths: ['src/emails'],
   sourceLocale: { code: 'en', label: 'English' },
   locales: [
     { code: 'de', label: 'Deutsch' },
@@ -82,6 +84,29 @@ templates: {
 ```
 
 Set `props` on the template entry to override `PreviewProps`. A custom `render` function remains available for templates that need bespoke setup.
+
+## Template locations and source watching
+
+Templates can be imported from anywhere in the consuming project. They do not need to live in `src/emails` or follow a specific folder structure.
+
+Use `watchPaths` to select the directories that should trigger preview regeneration during Vite development. Each entry is matched as a path fragment:
+
+```tsx
+export default defineEmailLab({
+  watchPaths: [
+    'src/domains/billing/notifications',
+    'src/shared/message-templates',
+    'packages/transactional-mail',
+  ],
+  templates: {
+    invoice: { name: 'Invoice', component: InvoiceEmail },
+    welcome: { name: 'Welcome', component: WelcomeEmail },
+  },
+  // sourceLocale, locales and provider...
+});
+```
+
+When `watchPaths` is omitted, the lab reloads for changes to JavaScript and TypeScript modules anywhere in the Vite application. In a larger codebase, configure it to avoid regenerating previews for unrelated source changes.
 
 ## Template routes
 

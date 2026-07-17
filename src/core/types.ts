@@ -25,6 +25,7 @@ export type EmailLabConfig = {
   templates: Record<string, EmailTemplate>;
   provider: TranslationProvider;
   routeBasePath?: string;
+  watchPaths?: string[];
 };
 
 export const defineEmailLab = (config: EmailLabConfig): EmailLabConfig => config;

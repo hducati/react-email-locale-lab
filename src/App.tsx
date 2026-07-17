@@ -6,9 +6,12 @@ export const EmailLabApp = ({ config }: { config: EmailLabConfig }) => {
   const lab = useEmailLab(config);
 
   return (
-    <main>
+    <main className="email-lab">
       <header className="topbar">
-        <div><p className="eyebrow">React Email Locale Lab</p><h1>See every language while you build.</h1></div>
+        <div className="topbar-copy">
+          <div className="brand"><span className="brand-mark" /><p className="eyebrow">React Email Locale Lab</p></div>
+          <h1>See every language while you build.</h1>
+        </div>
         <div className="controls">
           <label>
             Template
