@@ -1,0 +1,16 @@
+# Default owner for every file
+* @hducati
+
+# Security-sensitive repository configuration
+/.github/ @hducati
+
+# Package publication and dependency configuration
+/package.json @hducati
+/pnpm-lock.yaml @hducati
+/vite.lib.config.ts @hducati
+/tsconfig.lib.json @hducati
+
+# Public library interface and implementation
+/src/index.ts @hducati
+/src/core/ @hducati
+/src/app/ @hducati
