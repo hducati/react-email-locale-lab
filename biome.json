@@ -13,18 +13,9 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": [
-      "**",
-      "!**/dist",
-      "!**/demo-dist",
-      "!**/node_modules",
-      "!**/pnpm-lock.yaml",
-      "!**/.react-email"
-    ]
+    "includes": ["**", "!**/dist", "!**/demo-dist", "!**/node_modules"]
   },
   "formatter": {
-    "enabled": true,
-    "lineEnding": "auto",
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 80
@@ -35,61 +26,10 @@
     }
   },
   "linter": {
-    "enabled": true,
     "rules": {
       "preset": "recommended",
-      "a11y": {
-        "noAutofocus": "off",
-        "noStaticElementInteractions": "off",
-        "noSvgWithoutTitle": "off"
-      },
-      "complexity": {
-        "noArguments": "error",
-        "noCommaOperator": "error",
-        "noForEach": "off",
-        "noImportantStyles": "off",
-        "noUselessFragments": "off",
-        "useNumericLiterals": "error"
-      },
       "correctness": {
-        "noChildrenProp": "off",
-        "noUnusedImports": "warn",
-        "useExhaustiveDependencies": "off",
-        "useJsxKeyInIterable": "off"
-      },
-      "performance": {
-        "noDelete": "off"
-      },
-      "security": {
-        "noDangerouslySetInnerHtml": "off"
-      },
-      "style": {
-        "noDescendingSpecificity": "off",
-        "noInferrableTypes": "error",
-        "noNonNullAssertion": "off",
-        "noParameterAssign": "error",
-        "noUnusedTemplateLiteral": "error",
-        "noUselessElse": "error",
-        "useAsConstAssertion": "error",
-        "useConst": "error",
-        "useDefaultParameterLast": "error",
-        "useEnumInitializers": "error",
-        "useExponentiationOperator": "error",
-        "useExportType": "error",
-        "useImportType": "error",
-        "useLiteralEnumMembers": "error",
-        "useNodejsImportProtocol": "error",
-        "useNumberNamespace": "error",
-        "useSelfClosingElements": "error",
-        "useShorthandFunctionType": "error",
-        "useSingleVarDeclarator": "error",
-        "useTemplate": "error"
-      },
-      "suspicious": {
-        "noArrayIndexKey": "off",
-        "noAssignInExpressions": "off",
-        "noExplicitAny": "off",
-        "noUnknownAtRules": "off"
+        "useExhaustiveDependencies": "off"
       }
     }
   }
