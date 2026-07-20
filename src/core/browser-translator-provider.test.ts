@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { browserTranslatorProvider } from './browser-translator-provider';
 
 describe('browserTranslatorProvider', () => {
@@ -119,6 +119,75 @@ describe('browserTranslatorProvider', () => {
     })).rejects.toMatchObject({ name: 'AbortError' });
 
     expect(attempts).toEqual(['Old heading']);
+  });
+
+  it('recreates the translator and retries transient generic failures', async () => {
+    let sessions = 0;
+    const destroyed: number[] = [];
+    const onRetry = vi.fn();
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: {
+        sessionStorage: createSessionStorage(),
+        Translator: {
+          availability: async () => 'available',
+          create: async () => {
+            const session = ++sessions;
+            return {
+              destroy: () => { destroyed.push(session); },
+              async translate(text: string) {
+                if (session < 4) {
+                  throw new DOMException('Other generic failures occurred', 'UnknownError');
+                }
+                return `pl:${text}`;
+              },
+            };
+          },
+        },
+      },
+    });
+
+    await expect(browserTranslatorProvider({ retryDelayMs: 0 }).translate({
+      texts: ['Interview scheduled'],
+      sourceLocale: 'en',
+      targetLocale: 'pl',
+      onRetry,
+    })).resolves.toEqual(['pl:Interview scheduled']);
+
+    expect(sessions).toBe(4);
+    expect(destroyed).toEqual([1, 2, 3]);
+    expect(onRetry.mock.calls.map(([retry]) => retry.attempt)).toEqual([2, 3, 4]);
+  });
+
+  it('surfaces a transient failure only after four attempts', async () => {
+    const onRetry = vi.fn();
+    let attempts = 0;
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: {
+        sessionStorage: createSessionStorage(),
+        Translator: {
+          availability: async () => 'available',
+          create: async () => ({
+            destroy: () => undefined,
+            async translate() {
+              attempts += 1;
+              throw new DOMException('Other generic failures occurred', 'UnknownError');
+            },
+          }),
+        },
+      },
+    });
+
+    await expect(browserTranslatorProvider({ retryDelayMs: 0 }).translate({
+      texts: ['Order confirmed'],
+      sourceLocale: 'en',
+      targetLocale: 'pl',
+      onRetry,
+    })).rejects.toThrow('Other generic failures occurred');
+
+    expect(attempts).toBe(4);
+    expect(onRetry).toHaveBeenCalledTimes(3);
   });
 });
 

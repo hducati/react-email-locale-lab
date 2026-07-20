@@ -309,9 +309,11 @@
 .email-lab .status-source,
 .email-lab .status-ready { color: var(--lab-success); }
 .email-lab .status-stale { color: var(--lab-warning); }
-.email-lab .status-translating { color: #8da4ff; }
+.email-lab .status-translating,
+.email-lab .status-retrying { color: #8da4ff; }
 .email-lab .status-error { color: var(--lab-error); }
-.email-lab .status-translating i { animation: lab-pulse 800ms ease-in-out infinite; }
+.email-lab .status-translating i,
+.email-lab .status-retrying i { animation: lab-pulse 800ms ease-in-out infinite; }
 
 .email-lab .revision {
   background: #080808;
