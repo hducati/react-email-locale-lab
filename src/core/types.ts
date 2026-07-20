@@ -11,7 +11,11 @@ export type PreviewableEmailComponent = ComponentType<any> & {
 export type EmailTemplate = {
   name: string;
 } & (
-  | { component: PreviewableEmailComponent; props?: Record<string, unknown>; render?: never }
+  | {
+      component: PreviewableEmailComponent;
+      props?: Record<string, unknown>;
+      render?: never;
+    }
   | { render: () => ReactElement; component?: never; props?: never }
 );
 export type TranslationRequest = {
@@ -43,4 +47,5 @@ export type EmailLabConfig = {
   sourceUpdates?: SourceUpdates;
 };
 
-export const defineEmailLab = (config: EmailLabConfig): EmailLabConfig => config;
+export const defineEmailLab = (config: EmailLabConfig): EmailLabConfig =>
+  config;

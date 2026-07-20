@@ -5,16 +5,21 @@ import { renderEmailTemplate } from './template';
 
 describe('renderEmailTemplate', () => {
   it('uses PreviewProps declared by a React Email template', () => {
-    const WelcomeEmail = ({ name }: { name: string }) => createElement('p', null, 'Hello ', name);
+    const WelcomeEmail = ({ name }: { name: string }) =>
+      createElement('p', null, 'Hello ', name);
     WelcomeEmail.PreviewProps = { name: 'Taylor' };
 
-    const element = renderEmailTemplate({ name: 'Welcome', component: WelcomeEmail });
+    const element = renderEmailTemplate({
+      name: 'Welcome',
+      component: WelcomeEmail,
+    });
 
     expect(renderToStaticMarkup(element)).toBe('<p>Hello Taylor</p>');
   });
 
   it('allows configured props to override PreviewProps', () => {
-    const WelcomeEmail = ({ name }: { name: string }) => createElement('p', null, 'Hello ', name);
+    const WelcomeEmail = ({ name }: { name: string }) =>
+      createElement('p', null, 'Hello ', name);
     WelcomeEmail.PreviewProps = { name: 'Taylor' };
 
     const element = renderEmailTemplate({
@@ -27,7 +32,10 @@ describe('renderEmailTemplate', () => {
   });
 
   it('keeps custom render functions supported', () => {
-    const element = renderEmailTemplate({ name: 'Custom', render: () => createElement('p', null, 'Custom') });
+    const element = renderEmailTemplate({
+      name: 'Custom',
+      render: () => createElement('p', null, 'Custom'),
+    });
 
     expect(renderToStaticMarkup(element)).toBe('<p>Custom</p>');
   });

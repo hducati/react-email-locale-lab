@@ -5,19 +5,30 @@ export const normalizeRouteBasePath = (value = DEFAULT_ROUTE_BASE_PATH) => {
   return normalized || DEFAULT_ROUTE_BASE_PATH;
 };
 
-export const templateIdFromUrl = (url: URL, templateIds: string[], routeBasePath?: string) => {
+export const templateIdFromUrl = (
+  url: URL,
+  templateIds: string[],
+  routeBasePath?: string,
+) => {
   const basePath = normalizeRouteBasePath(routeBasePath);
   const routeValue = url.pathname.startsWith(`${basePath}/`)
     ? decodeURIComponent(url.pathname.slice(basePath.length + 1))
     : undefined;
   const candidate = routeValue || url.searchParams.get('template') || undefined;
-  return candidate && templateIds.includes(candidate) ? candidate : templateIds[0];
+  return candidate && templateIds.includes(candidate)
+    ? candidate
+    : templateIds[0];
 };
 
 export const localeCodesFromUrl = (url: URL, limit = 3) =>
-  url.searchParams.get('langs')?.split(',').filter(Boolean).slice(0, limit) ?? [];
+  url.searchParams.get('langs')?.split(',').filter(Boolean).slice(0, limit) ??
+  [];
 
-export const urlForTemplate = (url: URL, templateId: string, routeBasePath?: string) => {
+export const urlForTemplate = (
+  url: URL,
+  templateId: string,
+  routeBasePath?: string,
+) => {
   const next = new URL(url);
   next.pathname = `${normalizeRouteBasePath(routeBasePath)}/${encodeURIComponent(templateId)}`;
   next.searchParams.delete('template');

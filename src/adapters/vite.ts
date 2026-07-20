@@ -3,8 +3,14 @@ import { shouldReloadForUpdates } from '../core/watch';
 
 type ViteUpdatePayload = { updates: Array<{ path: string }> };
 type ViteHotContext = {
-  on: (event: 'vite:afterUpdate', listener: (payload: ViteUpdatePayload) => void) => void;
-  off: (event: 'vite:afterUpdate', listener: (payload: ViteUpdatePayload) => void) => void;
+  on: (
+    event: 'vite:afterUpdate',
+    listener: (payload: ViteUpdatePayload) => void,
+  ) => void;
+  off: (
+    event: 'vite:afterUpdate',
+    listener: (payload: ViteUpdatePayload) => void,
+  ) => void;
 };
 
 export const viteSourceUpdates = (
@@ -14,7 +20,12 @@ export const viteSourceUpdates = (
   subscribe(onUpdate) {
     if (!hot) return () => {};
     const afterUpdate = (payload: ViteUpdatePayload) => {
-      if (shouldReloadForUpdates(payload.updates.map((update) => update.path), options.watchPaths)) {
+      if (
+        shouldReloadForUpdates(
+          payload.updates.map((update) => update.path),
+          options.watchPaths,
+        )
+      ) {
         onUpdate();
       }
     };

@@ -1,4 +1,10 @@
-export type PreviewStatus = 'source' | 'stale' | 'translating' | 'retrying' | 'ready' | 'error';
+export type PreviewStatus =
+  | 'source'
+  | 'stale'
+  | 'translating'
+  | 'retrying'
+  | 'ready'
+  | 'error';
 
 export type PreviewState = {
   html: string;

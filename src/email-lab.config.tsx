@@ -1,11 +1,13 @@
-import { defineEmailLab } from './core/types';
-import { browserTranslatorProvider } from './core/browser-translator-provider';
-import { WelcomeEmail } from './emails/welcome';
 import { viteSourceUpdates } from './adapters/vite';
+import { browserTranslatorProvider } from './core/browser-translator-provider';
+import { defineEmailLab } from './core/types';
+import { WelcomeEmail } from './emails/welcome';
 
 export default defineEmailLab({
   sourceLocale: { code: 'en', label: 'English' },
-  sourceUpdates: viteSourceUpdates(import.meta.hot, { watchPaths: ['src/emails'] }),
+  sourceUpdates: viteSourceUpdates(import.meta.hot, {
+    watchPaths: ['src/emails'],
+  }),
   locales: [
     { code: 'pt-BR', label: 'Português (Brasil)' },
     { code: 'de', label: 'Deutsch' },
