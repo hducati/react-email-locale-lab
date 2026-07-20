@@ -5,5 +5,7 @@ import config from './email-lab.config';
 import './styles.css';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode><EmailLabApp config={config} /></StrictMode>,
+  <StrictMode>
+    <EmailLabApp config={config} />
+  </StrictMode>,
 );

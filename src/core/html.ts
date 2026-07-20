@@ -1,20 +1,53 @@
 const TRANSLATABLE_ATTRIBUTES = ['alt', 'title', 'aria-label'];
 const RTL_LANGUAGES = new Set([
-  'ar', 'arc', 'ckb', 'dv', 'fa', 'he', 'khw', 'ks', 'ku', 'nqo', 'ps', 'sd', 'syr', 'ug', 'ur', 'yi',
+  'ar',
+  'arc',
+  'ckb',
+  'dv',
+  'fa',
+  'he',
+  'khw',
+  'ks',
+  'ku',
+  'nqo',
+  'ps',
+  'sd',
+  'syr',
+  'ug',
+  'ur',
+  'yi',
 ]);
-const RTL_SCRIPTS = new Set(['adlm', 'arab', 'hebr', 'mand', 'nkoo', 'rohg', 'samr', 'syrc', 'thaa']);
+const RTL_SCRIPTS = new Set([
+  'adlm',
+  'arab',
+  'hebr',
+  'mand',
+  'nkoo',
+  'rohg',
+  'samr',
+  'syrc',
+  'thaa',
+]);
 
 export const directionForLocale = (locale: string): 'ltr' | 'rtl' => {
   const subtags = locale.trim().split(/[-_]/);
   const language = subtags[0].toLowerCase();
-  const extensionIndex = subtags.findIndex((subtag, index) => index > 0 && /^[a-z0-9]$/i.test(subtag));
-  const coreSubtags = subtags.slice(1, extensionIndex === -1 ? undefined : extensionIndex);
+  const extensionIndex = subtags.findIndex(
+    (subtag, index) => index > 0 && /^[a-z0-9]$/i.test(subtag),
+  );
+  const coreSubtags = subtags.slice(
+    1,
+    extensionIndex === -1 ? undefined : extensionIndex,
+  );
   const script = coreSubtags.find((subtag) => /^[a-z]{4}$/i.test(subtag));
   if (script) return RTL_SCRIPTS.has(script.toLowerCase()) ? 'rtl' : 'ltr';
   return RTL_LANGUAGES.has(language) ? 'rtl' : 'ltr';
 };
 
-export type MessageSlot = { value: string; apply: (translated: string) => void };
+export type MessageSlot = {
+  value: string;
+  apply: (translated: string) => void;
+};
 const isMeaningful = (value: string) => /\p{L}/u.test(value);
 
 export const collectMessages = (document: Document): MessageSlot[] => {
@@ -25,10 +58,19 @@ export const collectMessages = (document: Document): MessageSlot[] => {
     const text = node as Text;
     const parent = text.parentElement;
     const value = text.data.trim();
-    if (parent && !['STYLE', 'SCRIPT'].includes(parent.tagName) && isMeaningful(value)) {
+    if (
+      parent &&
+      !['STYLE', 'SCRIPT'].includes(parent.tagName) &&
+      isMeaningful(value)
+    ) {
       const leading = text.data.match(/^\s*/)?.[0] ?? '';
       const trailing = text.data.match(/\s*$/)?.[0] ?? '';
-      slots.push({ value, apply: (translated) => { text.data = `${leading}${translated}${trailing}`; } });
+      slots.push({
+        value,
+        apply: (translated) => {
+          text.data = `${leading}${translated}${trailing}`;
+        },
+      });
     }
     node = walker.nextNode();
   }
@@ -36,7 +78,10 @@ export const collectMessages = (document: Document): MessageSlot[] => {
     for (const attribute of TRANSLATABLE_ATTRIBUTES) {
       const value = element.getAttribute(attribute)?.trim();
       if (value && isMeaningful(value)) {
-        slots.push({ value, apply: (translated) => element.setAttribute(attribute, translated) });
+        slots.push({
+          value,
+          apply: (translated) => element.setAttribute(attribute, translated),
+        });
       }
     }
   }
@@ -55,21 +100,30 @@ export const localizeHtml = async (
   document.documentElement.dir = directionForLocale(targetLocale);
   const slots = collectMessages(document);
   const translated = await translate(slots.map((slot) => slot.value));
-  slots.forEach((slot, index) => slot.apply(translated[index] ?? slot.value));
+  slots.forEach((slot, index) => {
+    slot.apply(translated[index] ?? slot.value);
+  });
   return `<!doctype html>${document.documentElement.outerHTML}`;
 };
 
 export const fingerprint = async (value: string): Promise<string> => {
   const bytes = new TextEncoder().encode(value);
   const hash = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(hash).slice(0, 6), (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return Array.from(new Uint8Array(hash).slice(0, 6), (byte) =>
+    byte.toString(16).padStart(2, '0'),
+  ).join('');
 };
 
 export const extractPreheader = (html: string): string | undefined => {
   const document = new DOMParser().parseFromString(html, 'text/html');
-  const hidden = Array.from(document.body.querySelectorAll<HTMLElement>('[style]')).find((element) =>
-    element.style.display === 'none' && element.textContent?.trim(),
+  const hidden = Array.from(
+    document.body.querySelectorAll<HTMLElement>('[style]'),
+  ).find(
+    (element) =>
+      element.style.display === 'none' && element.textContent?.trim(),
   );
-  const text = hidden?.textContent?.replace(/[\u00A0\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '').trim();
+  const text = hidden?.textContent
+    ?.replace(/[\u00A0\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '')
+    .trim();
   return text || undefined;
 };
