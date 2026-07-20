@@ -17,7 +17,10 @@ describe('browserTranslatorProvider', () => {
           availability: async () => 'available',
           create: async () => ({
             async translate(text: string) {
-              if (translating) throw new Error('Translator is already processing another request');
+              if (translating)
+                throw new Error(
+                  'Translator is already processing another request',
+                );
               translating = true;
               await new Promise((resolve) => setTimeout(resolve, 5));
               translating = false;
@@ -29,10 +32,16 @@ describe('browserTranslatorProvider', () => {
     });
 
     const provider = browserTranslatorProvider();
-    const request = (text: string) => provider.translate({ texts: [text], sourceLocale: 'en', targetLocale: 'pt-BR' });
+    const request = (text: string) =>
+      provider.translate({
+        texts: [text],
+        sourceLocale: 'en',
+        targetLocale: 'pt-BR',
+      });
 
-    await expect(Promise.all([request('Order confirmed'), request('Reset your password')]))
-      .resolves.toEqual([['pt:Order confirmed'], ['pt:Reset your password']]);
+    await expect(
+      Promise.all([request('Order confirmed'), request('Reset your password')]),
+    ).resolves.toEqual([['pt:Order confirmed'], ['pt:Reset your password']]);
   });
 
   it('reuses cached translations after the provider is recreated by a page reload', async () => {
@@ -54,7 +63,11 @@ describe('browserTranslatorProvider', () => {
       },
     });
 
-    const request = { texts: ['Order confirmed'], sourceLocale: 'en', targetLocale: 'de' };
+    const request = {
+      texts: ['Order confirmed'],
+      sourceLocale: 'en',
+      targetLocale: 'de',
+    };
     await browserTranslatorProvider().translate(request);
     await browserTranslatorProvider().translate(request);
 
@@ -81,12 +94,20 @@ describe('browserTranslatorProvider', () => {
       },
     });
 
-    await expect(browserTranslatorProvider().translate({
-      texts: ['Heading', 'Body'], sourceLocale: 'en', targetLocale: 'de',
-    })).rejects.toThrow('Translation failed');
-    await expect(browserTranslatorProvider().translate({
-      texts: ['Heading'], sourceLocale: 'en', targetLocale: 'de',
-    })).resolves.toEqual(['de:Heading']);
+    await expect(
+      browserTranslatorProvider().translate({
+        texts: ['Heading', 'Body'],
+        sourceLocale: 'en',
+        targetLocale: 'de',
+      }),
+    ).rejects.toThrow('Translation failed');
+    await expect(
+      browserTranslatorProvider().translate({
+        texts: ['Heading'],
+        sourceLocale: 'en',
+        targetLocale: 'de',
+      }),
+    ).resolves.toEqual(['de:Heading']);
 
     expect(attempts).toEqual(['Heading', 'Body']);
   });
@@ -111,12 +132,14 @@ describe('browserTranslatorProvider', () => {
       },
     });
 
-    await expect(browserTranslatorProvider().translate({
-      texts: ['Old heading', 'Old body'],
-      sourceLocale: 'en',
-      targetLocale: 'de',
-      signal: controller.signal,
-    })).rejects.toMatchObject({ name: 'AbortError' });
+    await expect(
+      browserTranslatorProvider().translate({
+        texts: ['Old heading', 'Old body'],
+        sourceLocale: 'en',
+        targetLocale: 'de',
+        signal: controller.signal,
+      }),
+    ).rejects.toMatchObject({ name: 'AbortError' });
 
     expect(attempts).toEqual(['Old heading']);
   });
@@ -126,6 +149,8 @@ const createSessionStorage = () => {
   const values = new Map<string, string>();
   return {
     getItem: (key: string) => values.get(key) ?? null,
-    setItem: (key: string, value: string) => { values.set(key, value); },
+    setItem: (key: string, value: string) => {
+      values.set(key, value);
+    },
   };
 };

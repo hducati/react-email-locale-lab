@@ -1,8 +1,12 @@
 const SCRIPT_MODULE = /\.[cm]?[jt]sx?(?:\?|$)/;
 
-const normalizePath = (path: string) => path.replaceAll('\\', '/').replace(/^\.\//, '');
+const normalizePath = (path: string) =>
+  path.replaceAll('\\', '/').replace(/^\.\//, '');
 
-export const shouldReloadForUpdates = (updatePaths: string[], watchPaths?: string[]) => {
+export const shouldReloadForUpdates = (
+  updatePaths: string[],
+  watchPaths?: string[],
+) => {
   const normalizedUpdates = updatePaths.map(normalizePath);
   const normalizedWatchPaths = watchPaths?.map(normalizePath).filter(Boolean);
 
