@@ -1,5 +1,10 @@
 import type { TranslationProvider } from './types';
 
+export type BrowserTranslatorProviderOptions = {
+  maxAttempts?: number;
+  retryDelayMs?: number;
+};
+
 type BrowserTranslator = {
   translate: (
     text: string,
@@ -56,7 +61,34 @@ const storeCache = (cache: Map<string, string>) => {
   }
 };
 
-export const browserTranslatorProvider = (): TranslationProvider => {
+const isTransientFailure = (error: unknown) =>
+  (error instanceof DOMException && error.name === 'UnknownError') ||
+  (error instanceof Error &&
+    error.message.includes('Other generic failures occurred'));
+
+const wait = (delayMs: number, signal?: AbortSignal) =>
+  new Promise<void>((resolve, reject) => {
+    if (delayMs === 0) {
+      resolve();
+      return;
+    }
+    const onAbort = () => {
+      clearTimeout(timeout);
+      reject(
+        signal?.reason ?? new DOMException('Translation aborted', 'AbortError'),
+      );
+    };
+    const timeout = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, delayMs);
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
+
+export const browserTranslatorProvider = ({
+  maxAttempts = 4,
+  retryDelayMs = 250,
+}: BrowserTranslatorProviderOptions = {}): TranslationProvider => {
   const translators = new Map<string, Promise<BrowserTranslator>>();
   const cache = readStoredCache();
   const queues = new Map<string, Promise<void>>();
@@ -109,10 +141,9 @@ export const browserTranslatorProvider = (): TranslationProvider => {
 
   return {
     name: 'Browser Translator · on-device',
-    async translate({ texts, sourceLocale, targetLocale, signal }) {
+    async translate({ texts, sourceLocale, targetLocale, signal, onRetry }) {
       if (texts.length === 0) return [];
       signal?.throwIfAborted();
-      const translator = await getTranslator(sourceLocale, targetLocale);
       const pair = `${sourceLocale}:${targetLocale}`;
       return serialize(pair, async () => {
         const results: string[] = [];
@@ -123,7 +154,34 @@ export const browserTranslatorProvider = (): TranslationProvider => {
             const key = `${pair}:${text}`;
             let translated = cache.get(key);
             if (!translated) {
-              translated = await translator.translate(text, { signal });
+              for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+                signal?.throwIfAborted();
+                const translator = await getTranslator(
+                  sourceLocale,
+                  targetLocale,
+                );
+                try {
+                  translated = await translator.translate(text, { signal });
+                  break;
+                } catch (error) {
+                  translators.delete(pair);
+                  translator.destroy?.();
+                  if (!isTransientFailure(error) || attempt === maxAttempts)
+                    throw error;
+                  const delayMs = retryDelayMs * 2 ** (attempt - 1);
+                  onRetry?.({
+                    attempt: attempt + 1,
+                    maxAttempts,
+                    delayMs,
+                    error,
+                  });
+                  await wait(delayMs, signal);
+                }
+              }
+              if (!translated)
+                throw new Error(
+                  `Translation failed after ${maxAttempts} attempts.`,
+                );
               cache.set(key, translated);
               cacheChanged = true;
             }

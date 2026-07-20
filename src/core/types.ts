@@ -23,6 +23,13 @@ export type TranslationRequest = {
   sourceLocale: string;
   targetLocale: string;
   signal?: AbortSignal;
+  onRetry?: (retry: TranslationRetry) => void;
+};
+export type TranslationRetry = {
+  attempt: number;
+  maxAttempts: number;
+  delayMs: number;
+  error: unknown;
 };
 export type TranslationProvider = {
   name: string;

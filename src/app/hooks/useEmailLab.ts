@@ -136,6 +136,18 @@ export const useEmailLab = (config: EmailLabConfig) => {
                   config.sourceLocale.code,
                 targetLocale: locale.translationCode ?? locale.code,
                 signal: controller.signal,
+                onRetry: () => {
+                  if (!cancelled) {
+                    setPreviews((current) => ({
+                      ...current,
+                      [locale.code]: {
+                        ...current[locale.code],
+                        status: 'retrying',
+                        error: undefined,
+                      },
+                    }));
+                  }
+                },
               }),
           );
           const revision = await fingerprint(sourceHtml);
