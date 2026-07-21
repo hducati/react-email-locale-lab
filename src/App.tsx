@@ -37,7 +37,8 @@ export const EmailLabApp = ({ config }: { config: EmailLabConfig }) => {
         <div>
           <strong>Preview languages</strong>
           <span>
-            Select up to three. Language packs load only when selected.
+            Six to eight translations is a comfortable range. Select more if you
+            need them; language packs load only when selected.
           </span>
         </div>
         <div className="locale-options">
@@ -48,10 +49,6 @@ export const EmailLabApp = ({ config }: { config: EmailLabConfig }) => {
                 lab.activeLocaleCodes.includes(locale.code)
                   ? 'locale-active'
                   : ''
-              }
-              disabled={
-                !lab.activeLocaleCodes.includes(locale.code) &&
-                lab.activeLocaleCodes.length >= 3
               }
               key={locale.code}
               onClick={() => lab.toggleLocale(locale.code)}

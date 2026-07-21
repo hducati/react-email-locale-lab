@@ -7,11 +7,10 @@ import type { PreviewState } from '../types';
 import {
   localeCodesFromUrl,
   templateIdFromUrl,
+  toggleLocaleCode,
   urlForLocales,
   urlForTemplate,
 } from '../utils/url-state';
-
-const LOCALE_LIMIT = 3;
 
 export const useEmailLab = (config: EmailLabConfig) => {
   const templateIds = useMemo(
@@ -26,7 +25,7 @@ export const useEmailLab = (config: EmailLabConfig) => {
     ),
   );
   const [activeLocaleCodes, setActiveLocaleCodes] = useState(() =>
-    localeCodesFromUrl(new URL(window.location.href), LOCALE_LIMIT),
+    localeCodesFromUrl(new URL(window.location.href)),
   );
   const [previews, setPreviews] = useState<Record<string, PreviewState>>({});
   const [sourceRevision, setSourceRevision] = useState('');
@@ -68,9 +67,7 @@ export const useEmailLab = (config: EmailLabConfig) => {
           config.routeBasePath,
         ),
       );
-      setActiveLocaleCodes(
-        localeCodesFromUrl(new URL(window.location.href), LOCALE_LIMIT),
-      );
+      setActiveLocaleCodes(localeCodesFromUrl(new URL(window.location.href)));
     };
     window.addEventListener('popstate', restoreUrlState);
     return () => window.removeEventListener('popstate', restoreUrlState);
@@ -192,9 +189,7 @@ export const useEmailLab = (config: EmailLabConfig) => {
   };
 
   const toggleLocale = (localeCode: string) => {
-    const next = activeLocaleCodes.includes(localeCode)
-      ? activeLocaleCodes.filter((code) => code !== localeCode)
-      : [...activeLocaleCodes, localeCode].slice(0, LOCALE_LIMIT);
+    const next = toggleLocaleCode(activeLocaleCodes, localeCode);
     setActiveLocaleCodes(next);
     window.history.replaceState(
       {},

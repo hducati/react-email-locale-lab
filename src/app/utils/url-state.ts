@@ -20,9 +20,13 @@ export const templateIdFromUrl = (
     : templateIds[0];
 };
 
-export const localeCodesFromUrl = (url: URL, limit = 3) =>
-  url.searchParams.get('langs')?.split(',').filter(Boolean).slice(0, limit) ??
-  [];
+export const localeCodesFromUrl = (url: URL) =>
+  url.searchParams.get('langs')?.split(',').filter(Boolean) ?? [];
+
+export const toggleLocaleCode = (localeCodes: string[], localeCode: string) =>
+  localeCodes.includes(localeCode)
+    ? localeCodes.filter((code) => code !== localeCode)
+    : [...localeCodes, localeCode];
 
 export const urlForTemplate = (
   url: URL,

@@ -35,7 +35,7 @@ pnpm locale-lab dev
 
 Locale Lab discovers default exports or a single component export under `./emails`, derives stable ids and names from their relative paths, uses React Email `PreviewProps`, and owns the Vite host, styles, routing and refresh behavior. Use `--dir <path>`, `--port <number>` or `--open` when needed.
 
-Open `http://localhost:4174/preview/<template>`, select up to three languages, then edit the template. The browser translator is used by default. Set `provider` in the config when the project needs a custom translation adapter.
+Open `http://localhost:4174/preview/<template>`, select the languages you want to compare, then edit the template. There is no hard selection limit; six to eight translations is a comfortable range for side-by-side review. The browser translator is used by default. Set `provider` in the config when the project needs a custom translation adapter.
 
 The package supports React and React DOM 18 or 19. The existing `EmailLabApp` interface remains available for advanced embedding and custom hosts.
 

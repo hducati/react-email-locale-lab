@@ -202,7 +202,7 @@
     transform 140ms ease;
 }
 
-.email-lab .locale-options button:hover:not(:disabled) {
+.email-lab .locale-options button:hover {
   background: #181818;
   border-color: #444;
   color: #fff;
@@ -230,11 +230,6 @@
   background: #0a0a0a;
   border-color: #0a0a0a;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
-}
-
-.email-lab .locale-options button:disabled {
-  cursor: not-allowed;
-  opacity: 0.35;
 }
 
 .email-lab .notice {
