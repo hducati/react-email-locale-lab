@@ -16,67 +16,43 @@ The generated translations are intended only for visual inspection of the templa
 pnpm add -D react-email-locale-lab
 ```
 
-The package supports React and React DOM 18 or 19 and does not require Vite. The following quick start uses Vite as an optional development host:
+Create `locale-lab.config.ts` at the project root. These are the only project-specific inputs required by the conventional path:
+
+```ts
+import { defineEmailLabConfig } from 'react-email-locale-lab/config';
+
+export default defineEmailLabConfig({
+  sourceLocale: { code: 'en', label: 'English' },
+  locales: [{ code: 'de', label: 'Deutsch' }],
+});
+```
+
+Then start the owned development host:
 
 ```bash
-pnpm add -D vite
+pnpm locale-lab dev
 ```
 
-```html
-<!-- email-lab/index.html -->
-<div id="root"></div>
-<script type="module" src="/main.tsx"></script>
-```
+Locale Lab discovers default exports or a single component export under `./emails`, derives stable ids and names from their relative paths, uses React Email `PreviewProps`, and owns the Vite host, styles, routing and refresh behavior. Use `--dir <path>`, `--port <number>` or `--open` when needed.
+
+Open `http://localhost:4174/preview/<template>`, select up to three languages, then edit the template. The browser translator is used by default. Set `provider` in the config when the project needs a custom translation adapter.
+
+The package supports React and React DOM 18 or 19. The existing `EmailLabApp` interface remains available for advanced embedding and custom hosts.
+
+## Advanced embedding
+
+Most projects should use the CLI described above. Use the embedding interface only when templates need custom rendering or when Locale Lab must run inside an existing host.
+
+With this interface, the consumer explicitly owns the template registry, translation provider, source updates and host application:
 
 ```tsx
-// email-lab/main.tsx
-/// <reference types="vite/client" />
-
-import { createRoot } from 'react-dom/client';
 import {
   browserTranslatorProvider,
   defineEmailLab,
-  EmailLabApp,
 } from 'react-email-locale-lab';
 import { viteSourceUpdates } from 'react-email-locale-lab/vite';
-import 'react-email-locale-lab/styles.css';
-import { WelcomeEmail } from '../src/emails/welcome';
+import { WelcomeEmail } from './emails/welcome';
 
-const config = defineEmailLab({
-  routeBasePath: '/preview',
-  sourceUpdates: viteSourceUpdates(import.meta.hot, { watchPaths: ['src/emails'] }),
-  sourceLocale: { code: 'en', label: 'English' },
-  locales: [{ code: 'de', label: 'Deutsch' }],
-  provider: browserTranslatorProvider(),
-  templates: {
-    welcome: { name: 'Welcome', component: WelcomeEmail },
-  },
-});
-
-createRoot(document.getElementById('root')!).render(<EmailLabApp config={config} />);
-```
-
-Add a script and start the lab:
-
-```json
-{
-  "scripts": {
-    "email:lab": "vite email-lab --port 4174"
-  }
-}
-```
-
-```bash
-pnpm email:lab
-```
-
-Open `http://localhost:4174/preview/welcome`, select up to three languages, then edit the template. Vite refreshes the selected previews automatically.
-
-## Configuration interface
-
-The lab configuration defines only the source locale, available target locales, templates, and translation provider. There are no manually maintained translations. The user selects zero to three languages in the UI; translation is not initialized during app startup.
-
-```tsx
 export default defineEmailLab({
   routeBasePath: '/preview',
   sourceUpdates: viteSourceUpdates(import.meta.hot, { watchPaths: ['src/emails'] }),
@@ -119,11 +95,13 @@ templates: {
 }
 ```
 
-## Template locations and source updates
+## Template discovery and source updates
 
-Templates can be imported from anywhere in the consuming project. They do not need to live in `src/emails` or follow a specific folder structure.
+The CLI discovers templates under `./emails`, matching the React Email convention. Pass `--dir <path>` to use another directory, such as `src/emails`. Files may be nested and must export the email component as the default export or as their only component export.
 
-The core library is bundler-agnostic. Without `sourceUpdates`, previews still work and can be regenerated manually. Vite users can opt into HMR updates and restrict them to path fragments:
+When using advanced embedding, templates can be imported from anywhere in the consuming project and do not need to follow a specific directory structure.
+
+The embedded interface is bundler-agnostic. Without `sourceUpdates`, previews still work and can be regenerated manually. Vite users can opt into HMR updates and restrict them to path fragments:
 
 ```tsx
 import { viteSourceUpdates } from 'react-email-locale-lab/vite';
@@ -144,7 +122,7 @@ Every configured template has a stable preview route:
 /preview/passwordReset?langs=pt-BR,de
 ```
 
-Set `routeBasePath` to mount the lab elsewhere, such as `/email-preview`. Selecting a template updates the pathname, selected languages stay in `?langs=`, and browser back/forward navigation restores both template and locales. The host development server must use SPA fallback so these routes return the app entry point; Vite does this automatically in development.
+Set `routeBasePath` to mount the lab elsewhere, such as `/email-preview`. Selecting a template updates the pathname, selected languages stay in `?langs=`, and browser back/forward navigation restores both template and locales. The CLI configures SPA fallback automatically; custom hosts must provide it themselves.
 
 ## Languages
 

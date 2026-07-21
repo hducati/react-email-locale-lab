@@ -9,6 +9,8 @@ export default defineConfig({
     lib: {
       cssFileName: 'styles',
       entry: {
+        cli: resolve(__dirname, 'src/cli.ts'),
+        config: resolve(__dirname, 'src/config.ts'),
         index: resolve(__dirname, 'src/index.ts'),
         vite: resolve(__dirname, 'src/adapters/vite.ts'),
       },
@@ -17,6 +19,9 @@ export default defineConfig({
     },
     rollupOptions: {
       external: (id) =>
+        id.startsWith('node:') ||
+        id === 'vite' ||
+        id === '@vitejs/plugin-react' ||
         id === 'react' ||
         id.startsWith('react/') ||
         id === 'react-dom' ||
