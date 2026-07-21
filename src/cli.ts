@@ -2,6 +2,7 @@
 
 import { existsSync, readdirSync } from 'node:fs';
 import { basename, extname, relative, resolve, sep } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { createServer, type Plugin } from 'vite';
 
@@ -92,19 +93,31 @@ const displayName = (id: string) =>
     .replace(/[-_]+/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
-const localeLabPlugin = (configPath: string, emailsDir: string): Plugin => {
+const hostHtml =
+  '<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Locale Lab</title></head><body><div id="root"></div><script type="module" src="/@locale-lab-entry"></script></body></html>';
+
+export const localeLabPlugin = (
+  configPath: string,
+  emailsDir: string,
+): Plugin => {
   const virtualId = '\0locale-lab:entry';
   return {
     name: 'locale-lab-host',
     configureServer(server) {
-      server.middlewares.use((request, response, next) => {
+      server.middlewares.use(async (request, response, next) => {
         if (request.url?.includes('.') || request.url?.startsWith('/@'))
           return next();
-        response.statusCode = 200;
-        response.setHeader('Content-Type', 'text/html');
-        response.end(
-          '<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Locale Lab</title></head><body><div id="root"></div><script type="module" src="/@locale-lab-entry"></script></body></html>',
-        );
+        try {
+          const html = await server.transformIndexHtml(
+            request.url ?? '/',
+            hostHtml,
+          );
+          response.statusCode = 200;
+          response.setHeader('Content-Type', 'text/html');
+          response.end(html);
+        } catch (error) {
+          next(error);
+        }
       });
     },
     resolveId(id) {
@@ -159,9 +172,14 @@ const run = async () => {
   server.printUrls();
 };
 
-run().catch((error) => {
-  console.error(
-    `Locale Lab: ${error instanceof Error ? error.message : String(error)}`,
-  );
-  process.exitCode = 1;
-});
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+) {
+  run().catch((error) => {
+    console.error(
+      `Locale Lab: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    process.exitCode = 1;
+  });
+}
