@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { templateIdFromUrl, urlForTemplate } from '../app/utils/url-state';
+import {
+  localeCodesFromUrl,
+  templateIdFromUrl,
+  toggleLocaleCode,
+  urlForTemplate,
+} from '../app/utils/url-state';
 
 describe('template preview routes', () => {
   const templates = ['order', 'passwordReset'];
@@ -29,5 +34,31 @@ describe('template preview routes', () => {
         '/preview',
       ).search,
     ).toBe('?langs=pt-BR%2Cde');
+  });
+
+  it('restores every selected locale from a shared URL', () => {
+    const localeCodes = [
+      'ar',
+      'de',
+      'es',
+      'fr',
+      'he',
+      'ja',
+      'pt-BR',
+      'ru',
+      'zh',
+    ];
+    expect(
+      localeCodesFromUrl(
+        new URL(
+          `http://localhost/preview/order?langs=${localeCodes.join(',')}`,
+        ),
+      ),
+    ).toEqual(localeCodes);
+  });
+
+  it('adds locales without imposing a selection limit', () => {
+    const localeCodes = ['ar', 'de', 'es', 'fr', 'he', 'ja', 'pt-BR', 'ru'];
+    expect(toggleLocaleCode(localeCodes, 'zh')).toEqual([...localeCodes, 'zh']);
   });
 });

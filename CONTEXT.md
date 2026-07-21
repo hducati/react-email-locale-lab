@@ -20,7 +20,7 @@ Machine-translated copy used as stress-test data for visual inspection. It is no
 
 ### Comparison set
 
-The source locale plus up to three simultaneously selected translation fixtures. Product language should describe this as “compare the original with up to three translations,” not ambiguously as “four languages.”
+The source locale plus the translation fixtures currently selected for simultaneous review. A comparison set has no fixed size; product language may recommend six to eight translations for a comfortable visual review without preventing larger selections.
 
 ### Risk finding
 
