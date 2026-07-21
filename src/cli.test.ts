@@ -18,6 +18,12 @@ describe('Locale Lab CLI options', () => {
   ])('rejects --port without a value: %j', (...args) => {
     expect(() => parseOptions(args)).toThrow('--port requires a value');
   });
+
+  it.each(['abc', '0', '-1'])('rejects invalid port %j', (port) => {
+    expect(() => parseOptions(['dev', '--port', port])).toThrow(
+      '--port must be a positive integer',
+    );
+  });
 });
 
 describe('Locale Lab CLI host', () => {
@@ -40,9 +46,9 @@ describe('Locale Lab CLI host', () => {
       await server.listen();
       const url = server.resolvedUrls?.local[0];
       expect(url).toBeDefined();
-      const html = await fetch(new URL('/preview/welcome', url)).then(
-        (response) => response.text(),
-      );
+      const response = await fetch(new URL('/preview/welcome', url));
+      expect(response.status).toBe(200);
+      const html = await response.text();
 
       expect(html).toContain('/@react-refresh');
       expect(html).toContain('window.$RefreshReg$');
