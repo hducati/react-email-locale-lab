@@ -12,7 +12,7 @@ A layout or presentation defect revealed by rendering representative copy in ano
 
 ### QA handoff artifact
 
-A static, shareable result generated locally or in CI so QA can review multilingual template previews without cloning the repository, running the development environment, or accessing a hosted Locale Lab account.
+A static, shareable result generated locally or in CI so QA can review multilingual template previews without cloning the repository or running the development environment.
 
 ### Translation fixture
 
