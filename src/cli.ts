@@ -16,7 +16,7 @@ const EMAIL_EXTENSIONS = new Set(['.tsx', '.jsx', '.ts', '.js']);
 
 type CliOptions = { root: string; dir?: string; port: number; open: boolean };
 
-const parseOptions = (args: string[]): CliOptions => {
+export const parseOptions = (args: string[]): CliOptions => {
   if (args[0] && args[0] !== 'dev') {
     throw new Error(
       `Unknown command "${args[0]}". Usage: locale-lab dev [--dir emails] [--port 4174] [--open]`,
@@ -28,8 +28,15 @@ const parseOptions = (args: string[]): CliOptions => {
   let open = false;
   for (let index = 1; index < args.length; index += 1) {
     const arg = args[index];
-    if (arg === '--dir') dir = args[++index];
-    else if (arg === '--port') port = Number(args[++index]);
+    const readValue = (description: string) => {
+      const value = args[index + 1];
+      if (!value || value.startsWith('--'))
+        throw new Error(`${arg} requires ${description}.`);
+      index += 1;
+      return value;
+    };
+    if (arg === '--dir') dir = readValue('a path');
+    else if (arg === '--port') port = Number(readValue('a value'));
     else if (arg === '--open') open = true;
     else throw new Error(`Unknown option "${arg}".`);
   }

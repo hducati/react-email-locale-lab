@@ -2,7 +2,23 @@ import { resolve } from 'node:path';
 import react from '@vitejs/plugin-react';
 import { createServer } from 'vite';
 import { describe, expect, it } from 'vitest';
-import { localeLabPlugin } from './cli';
+import { localeLabPlugin, parseOptions } from './cli';
+
+describe('Locale Lab CLI options', () => {
+  it.each([
+    ['dev', '--dir'],
+    ['dev', '--dir', '--open'],
+  ])('rejects --dir without a path: %j', (...args) => {
+    expect(() => parseOptions(args)).toThrow('--dir requires a path');
+  });
+
+  it.each([
+    ['dev', '--port'],
+    ['dev', '--port', '--open'],
+  ])('rejects --port without a value: %j', (...args) => {
+    expect(() => parseOptions(args)).toThrow('--port requires a value');
+  });
+});
 
 describe('Locale Lab CLI host', () => {
   it('runs the SPA fallback through Vite HTML transforms', async () => {
