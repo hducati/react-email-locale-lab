@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, realpathSync } from 'node:fs';
 import { basename, extname, relative, resolve, sep } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { createServer, type Plugin } from 'vite';
 
@@ -179,10 +179,14 @@ const run = async () => {
   server.printUrls();
 };
 
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
-) {
+export const isMainModule = (moduleUrl: string, executablePath?: string) => {
+  if (!executablePath) return false;
+  return (
+    realpathSync(fileURLToPath(moduleUrl)) === realpathSync(executablePath)
+  );
+};
+
+if (isMainModule(import.meta.url, process.argv[1])) {
   run().catch((error) => {
     console.error(
       `Locale Lab: ${error instanceof Error ? error.message : String(error)}`,

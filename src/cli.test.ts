@@ -1,8 +1,28 @@
+import { mkdtempSync, rmSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { createServer } from 'vite';
 import { describe, expect, it } from 'vitest';
-import { localeLabPlugin, parseOptions } from './cli';
+import { isMainModule, localeLabPlugin, parseOptions } from './cli';
+
+describe('Locale Lab CLI entry', () => {
+  it('recognizes the module when executed through a package-manager symlink', () => {
+    const directory = mkdtempSync(resolve(tmpdir(), 'locale-lab-cli-'));
+    const modulePath = fileURLToPath(new URL('./cli.ts', import.meta.url));
+    const executablePath = resolve(directory, 'locale-lab');
+    symlinkSync(modulePath, executablePath);
+
+    try {
+      expect(
+        isMainModule(new URL('./cli.ts', import.meta.url).href, executablePath),
+      ).toBe(true);
+    } finally {
+      rmSync(directory, { recursive: true });
+    }
+  });
+});
 
 describe('Locale Lab CLI options', () => {
   it.each([
